@@ -1,65 +1,56 @@
 #include <iostream>
-#include <stack>
-#include <cctype> // for isdigit
-
+#include <cstring>
+#include <cctype>
 using namespace std;
 
-int evaluatePostfix(string expr)
-{
-    stack<int> s;
+const int MAX = 100;
+int stack[MAX], top = -1;
 
-    for (int i = 0; i < expr.length(); i++)
-    {
-        char ch = expr[i];
+void push(int val) {
+    if (top >= MAX - 1)
+        cout << "Stack overflow\n";
+    else
+        stack[++top] = val;
+}
 
-        if (isdigit(ch))
-        {
-            s.push(ch - '0'); // convert char to int
-        }
-        else if (ch == ' ')
-        {
-            continue; // skip spaces
-        }
-        else
-        {
-            // Pop two operands
-            int val2 = s.top();
-            s.pop();
-            int val1 = s.top();
-            s.pop();
+int pop() {
+    if (top < 0) {
+        cout << "Stack underflow\n";
+        return -1;
+    }
+    return stack[top--];
+}
 
-            switch (ch)
-            {
-            case '+':
-                s.push(val1 + val2);
-                break;
-            case '-':
-                s.push(val1 - val2);
-                break;
-            case '*':
-                s.push(val1 * val2);
-                break;
-            case '/':
-                s.push(val1 / val2);
-                break;
-            default:
-                cout << "Invalid operator: " << ch << endl;
-                return 0;
+int evaluatePostfix(const string &exp) {
+    for (int i = 0; i < exp.length(); i++) {
+        char ch = exp[i];
+
+        if (isspace(ch)) continue;
+
+        if (isdigit(ch)) {
+            push(ch - '0'); // convert char to int
+        } else {
+            int val2 = pop();
+            int val1 = pop();
+
+            switch (ch) {
+                case '+': push(val1 + val2); break;
+                case '-': push(val1 - val2); break;
+                case '*': push(val1 * val2); break;
+                case '/': push(val1 / val2); break;
             }
         }
     }
 
-    return s.top();
+    return pop();
 }
 
-int main()
-{
-    string expr;
-    cout << "Enter postfix expression (e.g., 231*+9-): ";
-    cin >> expr;
+int main() {
+    string postfix;
+    cout << "Enter postfix expression (e.g., 23*54*+9-): ";
+    cin >> postfix;
 
-    int result = evaluatePostfix(expr);
-    cout << "Result: " << result << endl;
-
+    int result = evaluatePostfix(postfix);
+    cout << "Result = " << result << endl;
     return 0;
 }
